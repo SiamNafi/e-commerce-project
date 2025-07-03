@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import SignPage from "./pages/SignPage";
@@ -8,7 +8,10 @@ import { Toaster } from "react-hot-toast";
 import { useUserStore } from "./stores/useUserStore";
 
 const App = () => {
-  const { user } = useUserStore();
+  const { user, checkAuth } = useUserStore();
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
   return (
     <div className="min-h-screen bg-gray-900 text-white relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden">
