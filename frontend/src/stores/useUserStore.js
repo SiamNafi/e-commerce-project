@@ -46,4 +46,18 @@ export const useUserStore = create((set, get) => ({
       set({ checkingAuth: false, user: null });
     }
   },
+  // logout function
+  logout: async () => {
+    try {
+      await axios.post("/auth/logout");
+      set({ user: null });
+      toast.success("Logged out successfully");
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "An error occured during logout"
+      );
+    }
+  },
 }));
+
+//TODO: implement axios interceptors for refreshing the access token
