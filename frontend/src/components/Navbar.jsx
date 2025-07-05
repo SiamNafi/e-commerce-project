@@ -47,6 +47,7 @@ const Navbar = () => {
             {/* check if user is admin and show dashboard button */}
             {isAdmin && (
               <Link
+                to={"/secret-dashboard"}
                 className="bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1 rounded-md font-medium
               transition duration-300 ease-in-out flex items-center"
               >
