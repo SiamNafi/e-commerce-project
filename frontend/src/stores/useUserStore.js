@@ -17,7 +17,7 @@ export const useUserStore = create((set, get) => ({
 
     try {
       const res = await axios.post("/auth/signup", { name, email, password });
-      set({ user: res.data, loading: false });
+      set({ user: res.data.user, loading: false }); // ✅ fixed
     } catch (error) {
       set({ loading: false });
       toast.error(error.response.data.message || "An error occurred");
@@ -28,8 +28,7 @@ export const useUserStore = create((set, get) => ({
 
     try {
       const res = await axios.post("/auth/login", { email, password });
-
-      set({ user: res.data, loading: false });
+      set({ user: res.data.user, loading: false }); // ✅ fixed
     } catch (error) {
       set({ loading: false });
       toast.error(error.response.data.message || "An error occurred");
@@ -83,28 +82,29 @@ axios.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    // Check if token expired
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
-        // If a refresh is already in progress, wait for it to complete
+        // Wait for refresh token if one is in progress
         if (refreshPromise) {
           await refreshPromise;
-          return axios(originalRequest);
+        } else {
+          refreshPromise = useUserStore.getState().refreshToken();
+          await refreshPromise;
+          refreshPromise = null;
         }
 
-        // Start a new refresh process
-        refreshPromise = useUserStore.getState().refreshToken();
-        await refreshPromise;
-        refreshPromise = null;
-
+        // Retry original request after token refresh
         return axios(originalRequest);
-      } catch (refreshError) {
-        // If refresh fails, redirect to login or handle as needed
+      } catch (err) {
         useUserStore.getState().logout();
-        return Promise.reject(refreshError);
+        return Promise.reject(err);
       }
     }
+
     return Promise.reject(error);
   }
 );
