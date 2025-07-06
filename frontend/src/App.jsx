@@ -22,6 +22,7 @@ const App = () => {
     checkAuth();
   }, [checkAuth]);
   useEffect(() => {
+    if (!user) return;
     getCartItems();
   }, [getCartItems, user]);
 

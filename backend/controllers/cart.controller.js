@@ -37,7 +37,7 @@ export const removeAllCart = async (req, res) => {
 
 export const updateQuantity = async (req, res) => {
   try {
-    const { id: productId } = req.body;
+    const { id: productId } = req.params;
     const { quantity } = req.body;
     const user = req.user;
     const existingitem = user.cartItems.find((item) => item.id === productId);
@@ -49,7 +49,7 @@ export const updateQuantity = async (req, res) => {
       }
       existingitem.quantity = quantity;
       await user.save();
-      res.json(cartItems);
+      res.json(user.cartItems);
     } else {
       res.status(404).json({ message: "Product not found" });
     }
@@ -61,7 +61,9 @@ export const updateQuantity = async (req, res) => {
 
 export const getCartProducts = async (req, res) => {
   try {
-    const products = await Product({ _id: { $in: req.user.cartItems } });
+    const products = await Product.find({
+      _id: { $in: req.user.cartItems.map((item) => item.id) },
+    });
     // add quantity for each product
     const cartItems = products.map((product) => {
       const item = req.user.cartItems.find(

@@ -47,7 +47,7 @@ export const createProduct = async (req, res) => {
       category,
       description,
     });
-    res.status(201).json({ message: "Product created successfully" });
+    res.status(201).json(product);
   } catch (error) {
     console.log("error in create product", error.message);
     res.status(500).json({ message: "server Error", error: error.message });
@@ -58,10 +58,10 @@ export const deleteProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {
-      res.staut(404).json({ message: "Product Not Found!" });
+      res.status(404).json({ message: "Product Not Found!" });
     }
     if (product.image) {
-      const publicId = await cloudinary.image.split("/").pop().split(".")[0];
+      const publicId = product.image.split("/").pop().split(".")[0];
       try {
         await cloudinary.uploader.destroy(publicId);
         console.log("Image deleted successfully");
@@ -70,6 +70,7 @@ export const deleteProduct = async (req, res) => {
       }
     }
     await Product.findByIdAndDelete(req.params.id);
+    res.json({ message: "Product deleted successfully" });
   } catch (error) {
     console.log("error in delete product", error.message);
     res.status(500).json({ message: "server Error", error: error.message });
@@ -92,7 +93,7 @@ export const getRecomendation = async (req, res) => {
         },
       },
     ]);
-    error.json(products);
+    res.json(products);
   } catch (error) {
     console.log("error in get recommended products", error.message);
     res.status(500).json({ message: "server error", error: error.message });
