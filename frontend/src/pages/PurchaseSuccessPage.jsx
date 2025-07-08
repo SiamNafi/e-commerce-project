@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useCartStore } from "../stores/useCartStore";
 import axios from "../lib/axios";
+import Confetti from "react-confetti";
 
 const PurchaseSuccessPage = () => {
   const [isProccessign, setIsProccessing] = useState(true);
@@ -14,7 +15,7 @@ const PurchaseSuccessPage = () => {
         await axios.post("/payments/checkout-success", {
           sessionId,
         });
-        clearCart();
+        await clearCart();
       } catch (error) {
         console.log(error);
       } finally {
@@ -35,7 +36,14 @@ const PurchaseSuccessPage = () => {
   if (error) return `Error: ${error}`;
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
-      {/* Confetti */}
+      <Confetti
+        width={window.innerWidth}
+        height={window.innerHeight}
+        gravity={0.1}
+        style={{ zIndex: 99 }}
+        numberOfPieces={700}
+        recycle={false}
+      />
       <div className="max-w-md w-full p-4 bg-gray-800 rounded-lg shadow-xl overflow-hidden relative z-10'">
         <div className="p-6 sm:p-8">
           <div className="flex justify-center">

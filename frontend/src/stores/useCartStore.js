@@ -81,6 +81,12 @@ export const useCartStore = create((set, get) => ({
   },
   // clear cart
   clearCart: async () => {
+    try {
+      await axios.delete("/cart", { data: {} }); // send empty body
+    } catch (error) {
+      console.error("Failed to clear cart from backend", error);
+    }
+
     set({ cart: [], coupon: null, total: 0, subtotal: 0 });
   },
 
