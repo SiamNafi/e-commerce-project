@@ -91,6 +91,7 @@ axios.interceptors.response.use(
         // Wait for refresh token if one is in progress
         if (refreshPromise) {
           await refreshPromise;
+          return axios(originalRequest);
         } else {
           refreshPromise = useUserStore.getState().refreshToken();
           await refreshPromise;
