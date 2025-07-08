@@ -79,6 +79,10 @@ export const useCartStore = create((set, get) => ({
       toast.error("Failed to update quantity");
     }
   },
+  // clear cart
+  clearCart: async () => {
+    set({ cart: [], coupon: null, total: 0, subtotal: 0 });
+  },
 
   //   calculate totals
   calculateTotals: () => {
