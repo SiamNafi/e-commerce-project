@@ -8,7 +8,32 @@ export const useCartStore = create((set, get) => ({
   total: 0,
   subtotal: 0,
   isCouponApplied: false,
-
+  // get coupon
+  getMyCoupon: async () => {
+    try {
+      const res = await axios.get("/coupons");
+      set({ coupon: res.data });
+    } catch (error) {
+      console.log("Error getting coupon", error);
+    }
+  },
+  // apply coupn
+  applyCoupon: async (code) => {
+    try {
+      const response = await axios.post("/coupons/validate", { code });
+      set({ coupon: response.data, isCouponApplied: true });
+      get().calculateTotals();
+      toast.success("Coupon applied successfully");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to apply coupon");
+    }
+  },
+  // remove coupon
+  removeCoupon: () => {
+    set({ coupon: null, isCouponApplied: false });
+    get().calculateTotals();
+    toast.success("Coupon removed");
+  },
   //   fetch and get all cart items
   getCartItems: async () => {
     try {
@@ -93,15 +118,25 @@ export const useCartStore = create((set, get) => ({
   //   calculate totals
   calculateTotals: () => {
     const { cart, coupon } = get();
-    const subtotal = cart.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
+
+    const subtotal = cart.reduce((sum, item) => {
+      const price = Number(item.price);
+      const quantity = Number(item.quantity);
+      return sum + (isNaN(price) || isNaN(quantity) ? 0 : price * quantity);
+    }, 0);
+
     let total = subtotal;
-    if (coupon) {
-      const discount = (subtotal * coupon.discountPercentage) / 100;
+
+    if (
+      coupon &&
+      typeof coupon.discountPercentage !== "undefined" &&
+      !isNaN(Number(coupon.discountPercentage))
+    ) {
+      const discountPercentage = Number(coupon.discountPercentage);
+      const discount = (subtotal * discountPercentage) / 100;
       total = subtotal - discount;
     }
+
     set({ subtotal, total });
   },
 }));
